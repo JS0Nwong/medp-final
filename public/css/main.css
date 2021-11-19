@@ -1,0 +1,58 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+.hero
+{
+  display: flex;
+  flex-direction: row;
+}
+
+.messages {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.message-container {
+  display: flex;
+  width: 20%;
+  margin: 2.5%;
+}
+
+.form-group.button-group {
+  margin: 0 auto 0 50px;
+}
+
+/* ==========================================================================
+                          SIDE NAV BAR STYLING
+   ========================================================================== */
+
+.col-md-2
+{
+  background-color: #252525;
+  height: 100vh;
+
+}
+.col-md-12
+{
+  background-color: green;
+  height: 100vh;
+  width: 100%;
+}
+.col-md-10
+{
+  background-color: #171410;
+  height: 100vh;
+
+}
+
+
+
+
+
+
+
+
+
+
