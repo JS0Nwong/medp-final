@@ -4,12 +4,19 @@
   padding: 0;
   box-sizing: border-box;
 }
+:root
+{
+  --primary-color: #171410;
+  --secondary-color: #252525;
+  --contrast-color: #686868;
+}
 body
 {
   font-family: 'Poppins', sans-serif;
+  background-color: var(--secondary-color);
 }
 /* ==========================================================================
-   Author's custom styles
+    MAIN STYLES
    ========================================================================== */
 .hero
 {
@@ -33,7 +40,7 @@ body
 }
 
 /* ==========================================================================
-                          CHAT BOX STYLING
+                          HOME PAGE / CHAT PAGE
    ========================================================================== */
 .home
 {
@@ -50,9 +57,8 @@ body
 {
     outline: none;
     border: none;
-    border-bottom: 1px solid #17141d;
     font-size: 2rem;
-    background-color: #252525;
+    background-color: var(--secondary-color);
     width: 100%;
     border-radius: 10px;
     height: 50px;
@@ -64,21 +70,29 @@ body
 
 .col-md-2
 {
-  background-color: #252525;
+  background-color: var(--secondary-color);
   height: 100vh;
 
 }
 .col-md-10
 {
-  background-color: #171410;
+  background-color: var(--primary-color);
   height: 100vh;
 
 }
 
-
-
-
-
+/* ==========================================================================
+                              SIGN UP PAGE
+   ========================================================================== */
+.signups-wrapper
+{
+  background-color: var(--contrast-color);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
 
 
