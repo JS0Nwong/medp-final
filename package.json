@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,12 @@
     "dependencies": "^0.0.1",
     "express": "^4.17.1",
     "express-handlebars": "^5.3.4",
-    "sentiment": "^5.0.2"
+    "http": "^0.0.1-security",
+    "moment": "^2.29.1",
+    "nodemon": "^2.0.15",
+    "path": "^0.12.7",
+    "qs": "^6.10.1",
+    "sentiment": "^5.0.2",
+    "socket.io": "^4.4.0"
   }
 }

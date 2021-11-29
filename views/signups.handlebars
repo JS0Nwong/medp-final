@@ -1,19 +1,17 @@
 <div class="signups-wrapper">
-    <h3>Signups</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Email</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each signups}}
-        <tr>
-          <td> {{ this.name }} </td>
-          <td> {{ this.email }} </td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
+    <h3>Create An Account</h3>
+    <div class="information-wrapper">
+      <div class="email-signup">
+        <p class = "info-type">Email</p><input class = "signup-input" type="text">
+      </div>
+      <div class="username-signup">
+        <p class = "info-type">Username</p><input class = "signup-input" type="text">
+      </div>
+      <div class="password-signup">
+        <p class = "info-type">Password</p><input class = "signup-input" type="text">
+      </div>
+      <div class="submit-wrapper">
+          <button class = "submit-button" type="button">Submit</button>
+      </div>
+    </div>
 </div>

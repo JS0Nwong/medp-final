@@ -8,17 +8,22 @@
 {
   --primary-color: #171410;
   --secondary-color: #252525;
+  --tertiary-color: #292929;
   --contrast-color: #686868;
+  --highlight-color: #f5f5f5;
+  --pink: #c87e74;
 }
 body
 {
   font-family: 'Poppins', sans-serif;
-  background-color: var(--secondary-color);
+  background-color: var(--tertiary-color);
+  height: 100vh;
+  width: 100vw;
 }
 /* ==========================================================================
     MAIN STYLES
    ========================================================================== */
-.hero
+/* .hero
 {
   display: flex;
   flex-direction: row;
@@ -33,7 +38,7 @@ body
   display: flex;
   width: 20%;
   margin: 2.5%;
-}
+} */
 
 .form-group.button-group {
   margin: 0 auto 0 50px;
@@ -42,59 +47,283 @@ body
 /* ==========================================================================
                           HOME PAGE / CHAT PAGE
    ========================================================================== */
-.home
+.chat-container
 {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100vh;
+  overflow: hidden;
 }
-.message-container
+.chat-main
 {
-    width: 100%;
+  display: grid;
+  grid-template-columns: .8fr 3fr;
 }
-.message-input
+.chat-sidebar
 {
-    outline: none;
-    border: none;
-    font-size: 2rem;
-    background-color: var(--secondary-color);
-    width: 100%;
-    border-radius: 10px;
-    height: 50px;
-    padding-left: 50px;
+  background-color: var(--secondary-color);
+  color: var(--contrast-color);
+  padding: 20px 100px 60px;
+  height: 100vh;
+  overflow-y: scroll;
 }
+.chat-sidebar::-webkit-scrollbar
+{
+  width: 10px;
+  background: transparent;
+}
+.chat-sidebar::-webkit-scrollbar-thumb
+{
+  background-color: var(--contrast-color);
+  border-radius: 5px;
+}
+.chat-form-container
+{
+  background-color: var(--tertiary-color);
+}
+.text-input
+{
+  background-color: var(--primary-color);
+  opacity: 0.8;
+  color: var(--highlight-color);
+  outline: none;
+  border: none;
+  border-radius: 8px;
+
+  position: fixed;
+  bottom: 5%;
+  left: 23%;
+  width: 75%;
+  height: 50px;
+  padding: 19px;
+
+}
+.chat-messages {
+  padding: 30px;
+  max-height: 90vh;
+  overflow-y: scroll;
+  background-color: var(--tertiary-color);
+  color: var(--highlight-color);
+}
+.chat-messages::-webkit-scrollbar 
+{
+  width: 10px;  
+  background-color: var(--primary-color);
+  border-radius: 5px;
+}
+.chat-messages::-webkit-scrollbar-thumb 
+{
+  background-color: var(--contrast-color);
+  border-radius: 5px;
+}
+.chat-messages .message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  overflow-wrap: break-word;
+}
+.chat-sidebar ul li {
+  padding: 10px 0;
+  list-style: none;
+}
+.rooms-list
+{
+
+}
+.users-list
+{
+  font-size: 1.9rem;
+  color: var(--contrast-color);
+}
+/*
+.chat-sidebar h2 {
+  font-size: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.chat-sidebar h3 {
+  margin-bottom: 15px;
+}
+
+.chat-messages {
+  padding: 30px;
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.chat-messages .message {
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: var(--light-color);
+  border-radius: 5px;
+  overflow-wrap: break-word;
+}
+
+.chat-messages .message .meta {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--highlight-color);
+  opacity: 0.85;
+  margin-bottom: 7px;
+}
+
+.chat-messages .message .meta span {
+  color: var(--highlight-color);
+}
+
+.text
+{
+  color: var(--highlight-color);
+}
+.text-input
+{
+  border-radius: 5px;
+  position: fixed;
+  bottom: 5%;
+  left: 27%;
+  width: 70%;
+}
+.chat-form-container {
+  padding: 20px 30px;
+}
+
+.chat-form-container form {
+  display: flex;
+}
+
+.chat-form-container input[type='text'] {
+  font-size: 16px;
+  padding: 5px;
+  height: 40px;
+  flex: 1;
+} */
+
 /* ==========================================================================
                           SIDE NAV BAR STYLING
    ========================================================================== */
-
-.col-md-2
-{
-  background-color: var(--secondary-color);
-  height: 100vh;
-
-}
-.col-md-10
+.server-list
 {
   background-color: var(--primary-color);
   height: 100vh;
-
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow-y: scroll;
 }
-
+.server-list::-webkit-scrollbar
+{
+  width: 10px;  
+  background-color: var(--primary-color);
+  border-radius: 5px;
+}
+.server-list::-webkit-scrollbar-thumb 
+{
+  background-color: var(--contrast-color);
+  border-radius: 5px;
+}
+.chat-nav
+{
+  background-color: var(--secondary-color);
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.add-server, .home-nav
+{
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  background-color: #373430;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--pink);
+  font-size: 20px;
+  margin: 9px;
+  cursor: pointer;
+}
+.friends-list
+{
+  display: flex;
+}
 /* ==========================================================================
                               SIGN UP PAGE
    ========================================================================== */
+.information-wrapper
+{
+  display: flex;
+  flex-direction: column;
+}
 .signups-wrapper
 {
-  background-color: var(--contrast-color);
+  background-color: var(--secondary-color);
   border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 60%;
+  width: 25%;
+  color: var(--highlight-color);
+  box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.2);
 }
-
-
+.signup-input
+{
+  outline: none;
+  border: none;
+  font-size: 2rem;
+  background-color: var(--tertiary-color);
+  width: 100%;
+  border-radius: 10px;
+  height: 50px;
+  padding-left: 10px;
+  color: var(--contrast-color);
+}
+.signup
+{
+  margin: 8px;
+  display: flex;
+  flex-direction: column;
+}
+.select
+{
+  padding: 8px;
+  color: var(--highlight-color);
+  background-color: var(--secondary-color);
+}
+.info-type
+{
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.submit-button
+{
+  border: none;
+  background: var(--pink);
+  color: var(--secondary-color);
+  font-size: 2.5rem;
+  font-weight: 700;
+  width: 100%;
+  height: 50px;
+  border-radius: 10px;
+  font-size: 1.8rem;
+}
+.submit-wrapper
+{
+  margin-top: 70px;
+  padding: 7px;
+}
 
 
 

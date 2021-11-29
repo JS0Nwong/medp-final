@@ -1,12 +1,49 @@
-<div class="row hero">
-    <div class="col-md-2">
-        {{>nav}}
-    </div>
-    <div class="col-md-10">
-        <div class="row home">
-            <div class="message-container">
-                <input class = "message-input" type="text" placeholder="Enter Your Message">
+<div class="chat-container">
+    <main class="chat-main">
+        <div class="server-list">
+            <div class="icon-wrapper">
+                <div class="home-nav">
+                    <i class="fas fa-campground"></i>
+                </div>
+                
+                <div class = 'add-server'>
+                    <i class="fas fa-plus"></i>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="chat-sidebar">
+            <h3><i class="fas fa-comments"></i> Rooms</h3>
+            <ul id = "rooms-list" class = "rooms-list">
+            </ul>
+            <h2 id="room-name"></h2>
+            <h3><i class="fas fa-users"></i> Users</h3>
+            
+            <ul id="users-list" class = "users-list">
+            </ul>
+        </div>
+        <div class="chat-messages">
+            <div class="chat-form-container">
+                <form id="chat-form">
+                    <input class = "text-input" id="msg" type="text" placeholder="Enter Message" required autocomplete="off" />
+                </form>
+            </div>
+        </div>
+    </main>
 </div>
+
+
+{{!-- <div class="container-fluid chat-wrapper">
+    <main class="chat-main-container">
+        <div class="sidebar col-md-2">
+
+        </div>
+        <div class="chat-messages col-md-10">
+
+            <div class="chat-form-container">
+                <form id="chat-form">
+                    <input class = "text-input" id="msg" type="text" placeholder="Enter Message" required autocomplete="off" />
+                </form>
+            </div>
+        </div>
+    </main>
+</div> --}}
