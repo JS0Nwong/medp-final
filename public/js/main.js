@@ -41,8 +41,11 @@ chat.addEventListener('submit', (e) => {
 function displayMessage(data) {
     const div = document.createElement('div');
     div.classList.add('message');
-    div.innerHTML = `<p class="meta">${data.username} <span>${data.time}</span></p>
-    <p class = "text">${data.message}</p>
+    div.innerHTML = `
+    <div class = "text-wrapper">
+        <p class="meta">${data.username} <span>${data.time}</span></p>
+        <p class = "text">${data.message}</p>
+    </div>
     `;
 
     document.querySelector('.chat-messages').appendChild(div);
