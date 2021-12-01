@@ -70,6 +70,8 @@ io.on('connection', socket => {
         users: getRoomUsers(user.room),
       });
     }
+
+    delete socketStatus[socketId];
   });
 
   //Listens for the client to send a message

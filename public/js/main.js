@@ -58,6 +58,11 @@ const userStatus = {
     online: false,
 }
 
+window.onload = (e) => 
+{
+    voiceChat();
+};
+
 function voiceChat() {
     navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
         let mediaRecorder = new MediaRecorder(stream);
