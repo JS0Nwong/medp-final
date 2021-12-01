@@ -98,7 +98,7 @@ function voiceChat() {
         });
 
         setTimeout(function () {
-            madiaRecorder.stop();
+            mediaRecorder.stop();
         }, 1000);
     });
 
