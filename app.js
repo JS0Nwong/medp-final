@@ -80,8 +80,8 @@ io.on('connection', socket => {
     io.to(user.room).emit('message', formatMessage(user.username, message));
   });
 
-  socket.on('voice', voice => {
-    var voiceData = voice.split(';');
+  socket.on('voice', function(data) {
+    var voiceData = data.split(';');
     voiceData[0] = "data:audio/ogg";
     voiceData = voiceData[0] + voiceData[1];
     

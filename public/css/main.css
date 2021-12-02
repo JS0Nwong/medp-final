@@ -68,6 +68,8 @@ body
   padding: 20px 100px 60px;
   height: 100vh;
   overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
 }
 .chat-sidebar::-webkit-scrollbar
 {
@@ -133,16 +135,28 @@ body
   background-color: var(--secondary-color);
   border-radius: 10px;
 }
-.rooms-list
-{
-
-}
 .users-list
 {
   font-size: 1.9rem;
   color: var(--contrast-color);
 }
-
+.screen-share
+{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  padding: 80px 0px 0px;
+}
+.screen-share button
+{
+  background-color: var(--tertiary-color);
+  color: var(--highlight-color);
+  border: none;
+  border-radius: 10px;
+  width: 200px;
+  height: 60px;
+  font-size: 1.7rem;
+}
 /*
 .chat-sidebar h2 {
   font-size: 20px;

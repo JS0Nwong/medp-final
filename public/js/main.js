@@ -51,7 +51,7 @@ function displayMessage(data) {
     document.querySelector('.chat-messages').appendChild(div);
 }
 
-//VOICE CHAT//
+// VOICE CHAT
 const userStatus = {
     microphone: false,
     mute: false, 
@@ -64,7 +64,8 @@ window.onload = (e) =>
 };
 
 function voiceChat() {
-    navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
+    navigator.mediaDevices.getUserMedia(
+        {audio: true}).then((stream) => {
         let mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.start();
 
@@ -81,7 +82,7 @@ function voiceChat() {
 
             let fileReader = new FileReader();
             fileReader.readAsDataURL(audioBlob);
-            fileReader.onloadend = () => {
+            fileReader.onloadend = function() {
                 if(!userStatus.microphone || !userStatus.online) {
                     return;
                 }
@@ -108,14 +109,68 @@ function voiceChat() {
     })
 }
 
-// function displayRoomName(room) {
-//     roomName.innerHTML = `
-//     ${room.map(room => `<li>${room.room}</li>`).join('')}
-//     `
-// }
+function displayRoomName(room) {
+    roomName.innerHTML = `
+    ${room.map(room => `<li>${room.room}</li>`).join('')}
+    `
+}
 
 function displayUsers(users) {
     userList.innerHTML = `
     ${users.map(user => `<li>${user.username}</li>`).join('')}
     `;
 }
+
+var initiated = false;
+
+function startStream()
+{
+    if(initiated)
+    {
+        navigator.mediaDevices.getUserMedia({
+            video:
+            {
+                mediaSource: 'screen',
+                width: { min: 1280, max: 1920 },
+                height: { min: 720, max: 1080 },
+                frameRate: { min: 1, max: 30 }
+            }
+        }).then(getMedia);
+    }
+    else
+    {
+        getMedia(null);
+    }
+}
+
+function getMedia(stream)
+{
+    if(initiated)
+    {
+        var peer = new Peer({
+            initiator, 
+            stream,
+            config: stunServerConfig
+        });
+    }
+    else{
+        var peer = new Peer({
+            config: stunServerConfig
+        });
+    }
+
+    peer.on('signal', function(data){
+        socket.emit('offer', JSON.stringify(data));
+    })
+
+    socket.on('offer', (data) => {
+        peer.signal(JSON.parse(data));
+    });
+
+    peer.on('stream', function(stream){
+        var video = document.querySelector('video');
+        video.srcObject = stream;
+        video.play();
+    });
+}
+
