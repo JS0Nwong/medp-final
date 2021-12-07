@@ -5,7 +5,21 @@
                 <div class="home-nav">
                     <i class="fas fa-campground"></i>
                 </div>
-                
+                <div class="home-nav">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="home-nav">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="home-nav">
+                    <i class="fas fa-running"></i>
+                </div>
+                <div class="home-nav">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="home-nav">
+                    <i class="fas fa-landmark"></i>
+                </div>
                 <div class = 'add-server'>
                     <i class="fas fa-plus"></i>
                 </div>
@@ -22,6 +36,10 @@
             
             <ul id="users-list" class = "users-list">
             </ul>
+            <div class = "screen-share">
+                <button class = "video-share-btn"><i class="fas fa-video"></i> Camera</button>
+                <button class = "video-share-btn" id = "initiateBtn"><i class="fas fa-desktop"></i> Screen</button>
+            </div>
         </div>
         <div class="chat-messages">
             <div class="chat-form-container">
@@ -29,6 +47,7 @@
                     <input class = "text-input" id="msg" type="text" placeholder="Enter Message" required autocomplete="off" />
                 </form>
             </div>
+            {{> stream}}
         </div>
     </main>
 </div>

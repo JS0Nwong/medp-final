@@ -87,12 +87,22 @@ io.on('connection', socket => {
     
     for(const id in socketStatus)
     {
-      if(id != socketId && !socketStatus[id].muted && socketStatus[id].online)
+      if(id != socketId && !socketStatus[id].muted)
       {
         socket.broadcast.to(id).emit('send', voiceData);
       }
     }
   });
+
+  //STREAM FUNCTIONALITY
+
+  socket.on('offer', (data) => {
+    socket.broadcast.emit('offer', data);
+  })
+
+  socket.on('initiate', () => {
+    io.emit('initiate');
+  })
 
 })
 

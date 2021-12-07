@@ -55,7 +55,6 @@ function displayMessage(data) {
 const userStatus = {
     microphone: false,
     mute: false, 
-    online: false,
 }
 
 window.onload = (e) => 
@@ -133,7 +132,7 @@ function startStream()
                 mediaSource: 'screen',
                 width: { min: 1280, max: 1920 },
                 height: { min: 720, max: 1080 },
-                frameRate: { min: 1, max: 30 }
+                frameRate: { min: 1, max: 60 }
             }
         }).then(getMedia);
     }
