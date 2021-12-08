@@ -2,6 +2,8 @@ const chat = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-list');
 const userList = document.getElementById('users-list');
+const camera = document.getElementById('camera-btn');
+const screen = document.getElementById('initiateBtn');
 
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
@@ -172,4 +174,53 @@ function getMedia(stream)
         video.play();
     });
 }
+
+//CAMERA SHARING
+camera.addEventListener('click', () => {
+    //document.getElementById('video-grid').style.display = 'block';
+    let sharing = true;
+    $(".chat-messages").css({
+        "position": "absolute",
+        "top": "0",
+        "right": "0",
+        "width": "25%",
+        "height": "100%",
+        "background": "#1b1b1b"
+    });
+    $(".text-input").css({
+        "bottom": "5%",
+        "left": "77%",
+        "width": "21%",
+        "height": "50px",
+        "padding": "19px",
+    })
+    $(".video-grid").css({
+        "display": "block",
+    })
+
+    camera.innerHTML = '<i class="fas fa-video-slash"></i> Stop Video';
+})
+
+screen.addEventListener('click', () => {
+    //document.getElementById('video-grid').style.display = 'block';
+    $(".chat-messages").css({
+        "position": "absolute",
+        "top": "0",
+        "right": "0",
+        "width": "25%",
+        "height": "100%",
+        "background": "#1b1b1b"
+    });
+    $(".text-input").css({
+        "bottom": "5%",
+        "left": "77%",
+        "width": "21%",
+        "height": "50px",
+        "padding": "19px",
+    })
+    $(".video-grid").css({
+        "display": "block",
+    })
+    screen.innerHTML = '<i class="fas fa-eye-slash"></i> Stop Sharing';
+})
 

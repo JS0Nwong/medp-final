@@ -37,8 +37,14 @@
             <ul id="users-list" class = "users-list">
             </ul>
             <div class = "screen-share">
-                <button class = "video-share-btn"><i class="fas fa-video"></i> Camera</button>
+                <button class = "video-share-btn" id = "camera-btn"><i class="fas fa-video"></i> Camera</button>
                 <button class = "video-share-btn" id = "initiateBtn"><i class="fas fa-desktop"></i> Screen</button>
+                <button class = "video-share-btn" id = "initiateBtn"><i class="fas fa-microphone"></i> Mute</button>
+            </div>
+        </div>
+        <div class="video-grid" id = "video-grid">
+            <div id="video">
+
             </div>
         </div>
         <div class="chat-messages">
@@ -47,7 +53,6 @@
                     <input class = "text-input" id="msg" type="text" placeholder="Enter Message" required autocomplete="off" />
                 </form>
             </div>
-            {{> stream}}
         </div>
     </main>
 </div>

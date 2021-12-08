@@ -1,13 +1,18 @@
+//libraries that are usec
 const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const {v4: uuidv4} = require('uuid');
+const peer = require('peer');
 
+//set up express app and server
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+//helper functions
 const formatMessage = require('./public/js/messages');
 const {userJoin, getUser, userLeave, getRoomUsers} = require('./public/js/user')
 
@@ -80,6 +85,7 @@ io.on('connection', socket => {
     io.to(user.room).emit('message', formatMessage(user.username, message));
   });
 
+  //Listens for voice event on client
   socket.on('voice', function(data) {
     var voiceData = data.split(';');
     voiceData[0] = "data:audio/ogg";
@@ -95,7 +101,6 @@ io.on('connection', socket => {
   });
 
   //STREAM FUNCTIONALITY
-
   socket.on('offer', (data) => {
     socket.broadcast.emit('offer', data);
   })
