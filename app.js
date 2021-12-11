@@ -1,30 +1,24 @@
-//libraries that are usec
-const path = require('path');
-const http = require('http');
-const express = require('express');
-const socketio = require('socket.io');
-const bodyParser = require('body-parser');
-const {v4: uuidv4} = require('uuid');
-const peer = require('peer');
-
-//set up express app and server
+//REQUIRED LIBRARIES
+const express = require('express')
 const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+const { v4: uuidV4 } = require('uuid')
 
 //helper functions
 const formatMessage = require('./public/js/messages');
-const {userJoin, getUser, userLeave, getRoomUsers} = require('./public/js/user')
+//const {userJoin, getUser, userLeave, getRoomUsers} = require('./public/js/user')
 
-const botName = 'ChatBot';
+//INITIALIZE PEER TO PEER CONNECTION
+var {ExpressPeerServer} = require('peer');
+const peerServer = ExpressPeerServer(server, {
+    debug: true
+});
 
-let signups = [];
-let messages = [];
-const socketStatus = {};
+const botName = 'Alfred';
 
-// set up handlebars view engine
 var handlebars = require('express-handlebars').create({
-    defaultLayout:'main'
+  defaultLayout:'main'
 });
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -33,177 +27,38 @@ app.set('port', process.env.PORT || 3000);
 
 app.use(express.static(__dirname + '/public'));
 
-//Runs when the client connects to the server
+app.use('/peerjs', peerServer);
+
+app.get('/', (req, res) => {
+  res.redirect(`/${uuidV4()}`)
+})
+
+app.get('/:room', (req, res) => {
+  res.render('room', { roomId: req.params.room })
+})
+
 io.on('connection', socket => {
+  socket.on('join-room', (roomId, userId, userName) => {
 
-  const socketId = socket.id;
-  socketStatus[socketId] = {};
-
-  socket.on('joinRoom', ({username, room}) => {
-    const user = userJoin(socketId, username, room);
-
-    signups.push(user);
-
-    socket.join(user.room);
+    socket.join(roomId)
 
     socket.emit('message', formatMessage(botName, 'Welcome to the chatroom!'));
 
-    socket.broadcast
-      .to(user.room)
-      .emit('message', formatMessage(botName, `${user.username} has joined the chatroom!`));
+    socket.to(roomId).broadcast.emit('user-connected', userId)
 
-    io.to(user.room).emit('roomData', {
-      room: user.room,
-      users: getRoomUsers(user.room)
+    socket.on('message', (message) => {
+      io.to(roomId).emit('createMessage', message, userName)
     });
-
-    io.to(user.room).emit('roomUsers', {
-      room: user.room,
-      users: getRoomUsers(user.room),
-    });
-  });
-
-  //Runs when the client disconnects from the chat
-  socket.on('disconnect', () => {
-    const user = userLeave(socketId);
-
-    if(user) {
-      io.to(user.room).emit('message', formatMessage(botName, `${user.username} has left the chatroom.`));
-
-      io.to(user.room).emit('roomUsers', {
-        room: user.room,
-        users: getRoomUsers(user.room),
-      });
-    }
-
-    delete socketStatus[socketId];
-  });
-
-  //Listens for the client to send a message
-  socket.on('chatMessage', message => {
-    const user = getUser(socketId);
-    io.to(user.room).emit('message', formatMessage(user.username, message));
-  });
-
-  //Listens for voice event on client
-  socket.on('voice', function(data) {
-    var voiceData = data.split(';');
-    voiceData[0] = "data:audio/ogg";
-    voiceData = voiceData[0] + voiceData[1];
     
-    for(const id in socketStatus)
-    {
-      if(id != socketId && !socketStatus[id].muted)
-      {
-        socket.broadcast.to(id).emit('send', voiceData);
-      }
-    }
-  });
 
-  //STREAM FUNCTIONALITY
-  socket.on('offer', (data) => {
-    socket.broadcast.emit('offer', data);
+    socket.on('disconnect', () => {
+      socket.to(roomId).broadcast.emit('user-disconnected', userId)
+    })
+
   })
-
-  socket.on('initiate', () => {
-    io.emit('initiate');
-  })
-
 })
 
-console.log(messages);
-
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
   console.log(`Express started on http://localhost:${PORT}. Server is running on port ${PORT}`);
 });
-
-// middleware to add list data to context
-app.use(function(req, res, next){
-	if(!res.locals.partials) res.locals.partials = {};
-  // 	res.locals.partials.listOfWorks = listOfWorks;
- 	next();
-});
-
-// bodyParser allows us to parse form data as JSON
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-
-app.get('/', function(req, res) {
-  res.render('index');
-});
-
-app.get('/home', function(req, res) {
-  res.render('home');
-});
-
-app.get('/about', function(req,res){
-  res.render('about');
-});
-
-app.get('/form', function(req, res){
-  res.render('form');
-})
-
-
-app.post('/form-signup', function(req, res) {
-})
-
-app.get('/signups', function(req,res) {
-  res.render('signups', {
-    signups: signups
-  })
-})
-
-app.get('/thank-you', function(req, res) {
-  res.render('thank-you')
-})
-
-app.get('/messages', function(req,res) {
-  res.render('messages')
-})
-
-app.get('/data/messages', function(req, res) {
-  res.json(messages)
-})
-
-
-app.post('/message', function(req, res) {
-})
-
-app.get('/edit-messages', function(req, res) {
-  console.log('messages: ', messages)
-  res.render('edit-messages')
-})
-
-app.put('/message', function(req, res) {
-  let messageToChange = messages.filter(message => {
-    // have to parseInt because the put/post request always sends it in as a string
-    return message.messageId == parseInt(req.body.messageId)
-  })[0]
-})
-
-app.delete('/message', function(req, res) {
- let messageToDelete = messages.filter(message => {
-    return message.messageId == parseInt(req.body.messageId)
-  })[0]
-
-})
-// 404 catch-all handler (middleware)
-app.use(function(req, res, next){
-	res.status(404);
-	res.render('404');
-});
-
-// 500 error handler (middleware)
-app.use(function(err, req, res, next){
-	console.error(err.stack);
-	res.status(500);
-	res.render('500');
-});
-
-// app.listen(app.get('port'), function(){
-//   console.log( 'Express started on http://localhost:' +
-//     app.get('port') + '; press Ctrl-C to terminate.' );
-// });

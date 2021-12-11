@@ -1,226 +1,101 @@
-const chat = document.getElementById('chat-form');
-const chatMessages = document.querySelector('.chat-messages');
-const roomName = document.getElementById('room-list');
-const userList = document.getElementById('users-list');
-const camera = document.getElementById('camera-btn');
-const screen = document.getElementById('initiateBtn');
+const socket = io("/")  
+const videoGrid = document.getElementById('video-grid');
+const video = document.createElement('video');
 
-const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
+video.muted = true;
 
-const socket = io();
+const user = prompt("Enter your name");
 
-//joins the chat room
-socket.emit('joinRoom', { username, room });
-
-socket.on('roomUsers', ({room, users}) => {
-    //displayRoomName(room);
-    displayUsers(users);
+const peer = new Peer(undefined,{
+    path: "/peerjs",
+    host: "/",
+    port: "3000",
 })
 
-socket.on('message', data => {
-    displayMessage(data);
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-})
-
-//Message submit handler
-chat.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    //Get message text
-    let msg = e.target.elements.msg.value;
-
-    msg = msg.trim();
-
-    if(!msg) return false;
-
-    //Emit message to server
-    socket.emit('chatMessage', msg);
-    e.target.elements.msg.value = '';
-    e.target.elements.msg.focus();
+//GETS DESKTOP SCREEN
+let screenShare;
+const startShare = document.getElementById('screen-share');
+navigator.mediaDevices.getDisplayMedia({
+    video:
+    {
+        mediaSource: 'screen',
+        width: { min: 1280, max: 1920 },
+        height: { min: 720, max: 1080 },
+        frameRate: { min: 1, max: 60 }
+    }
+}).then(stream => {
+    screenShare = stream;
+    addVideoStream(screenShare, videoGrid);
 });
 
-function displayMessage(data) {
-    const div = document.createElement('div');
-    div.classList.add('message');
-    div.innerHTML = `
-    <div class = "text-wrapper">
-        <p class="meta">${data.username} <span>${data.time}</span></p>
-        <p class = "text">${data.message}</p>
-    </div>
-    `;
+//GETS CAMERA VIDEO AND MICROPHONE AUDIO 
+let myVideoStream;
+navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+}).then(stream => {
+    myVideoStream = stream;
+    addVideoStream(video, stream);
 
-    document.querySelector('.chat-messages').appendChild(div);
-}
+    peer.on("call", (call) => {
+        call.answer(stream);
+        const myVideo = document.createElement('video');
+        call.on('stream', userVideoStream => {
+            addVideoStream(myVideo, userVideoStream);
+        });
+    });
 
-// VOICE CHAT
-const userStatus = {
-    microphone: false,
-    mute: false, 
-}
+    socket.on("user-connected", (userId) => {
+        connectUser(userId, stream);
+    });
 
-window.onload = (e) => 
-{
-    voiceChat();
+}).catch(err => console.log(err));
+
+const connectUser = (userId, stream) => {
+    const call = peer.call(userId, stream);
+    const video = document.createElement('video');
+    call.on('stream', userVideoStream => {
+        addVideoStream(video, userVideoStream);
+    });
 };
 
-function voiceChat() {
-    navigator.mediaDevices.getUserMedia(
-        {audio: true}).then((stream) => {
-        let mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
+peer.on("open", id => {
+    socket.emit("join-room", ROOM_ID, id, user);
+});
 
-        let audioChunks = [];
-
-        mediaRecorder.addEventListener('dataavailable', (e) => {
-            audioChunks.push(e.data);
-        });
-        
-        mediaRecorder.addEventListener('stop', () => {
-            let audioBlob = new Blob(audioChunks);
-
-            audioChunks = [];
-
-            let fileReader = new FileReader();
-            fileReader.readAsDataURL(audioBlob);
-            fileReader.onloadend = function() {
-                if(!userStatus.microphone || !userStatus.online) {
-                    return;
-                }
-
-                var b64string = fileReader.result;
-                socket.emit('voice', b64string);
-            };
-
-            mediaRecorder.start();
-
-            setTimeout(() => {
-                mediaRecorder.stop();
-            }, 1000);
-        });
-
-        setTimeout(function () {
-            mediaRecorder.stop();
-        }, 1000);
-    });
-
-    socket.on("send", function(data) {
-        let audio = new Audio(data);
-        audio.play();
-    })
-}
-
-function displayRoomName(room) {
-    roomName.innerHTML = `
-    ${room.map(room => `<li>${room.room}</li>`).join('')}
-    `
-}
-
-function displayUsers(users) {
-    userList.innerHTML = `
-    ${users.map(user => `<li>${user.username}</li>`).join('')}
-    `;
-}
-
-var initiated = false;
-
-function startStream()
-{
-    if(initiated)
-    {
-        navigator.mediaDevices.getUserMedia({
-            video:
-            {
-                mediaSource: 'screen',
-                width: { min: 1280, max: 1920 },
-                height: { min: 720, max: 1080 },
-                frameRate: { min: 1, max: 60 }
-            }
-        }).then(getMedia);
-    }
-    else
-    {
-        getMedia(null);
-    }
-}
-
-function getMedia(stream)
-{
-    if(initiated)
-    {
-        var peer = new Peer({
-            initiator, 
-            stream,
-            config: stunServerConfig
-        });
-    }
-    else{
-        var peer = new Peer({
-            config: stunServerConfig
-        });
-    }
-
-    peer.on('signal', function(data){
-        socket.emit('offer', JSON.stringify(data));
-    })
-
-    socket.on('offer', (data) => {
-        peer.signal(JSON.parse(data));
-    });
-
-    peer.on('stream', function(stream){
-        var video = document.querySelector('video');
-        video.srcObject = stream;
+const addVideoStream = (video, stream) => {
+    video.srcObject = stream;
+    video.addEventListener('loadedmetadata', () => {
         video.play();
+        videoGrid.append(video);
     });
 }
 
-//CAMERA SHARING
-camera.addEventListener('click', () => {
-    //document.getElementById('video-grid').style.display = 'block';
-    let sharing = true;
-    $(".chat-messages").css({
-        "position": "absolute",
-        "top": "0",
-        "right": "0",
-        "width": "25%",
-        "height": "100%",
-        "background": "#1b1b1b"
-    });
-    $(".text-input").css({
-        "bottom": "5%",
-        "left": "77%",
-        "width": "21%",
-        "height": "50px",
-        "padding": "19px",
-    })
-    $(".video-grid").css({
-        "display": "block",
-    })
+//CHAT FUNCTIONALITY
+let message = document.getElementById('chat-message');
+let displayMessage = document.getElementById('display-message');
 
-    camera.innerHTML = '<i class="fas fa-video-slash"></i> Stop Video';
-})
+//LISTENS FOR SUBMIT EVENT 
+message.addEventListener('keydown', (e) => {
+    if(e.key === "Enter" && message.value.length !== 0){
+        socket.emit('message', message.value);
+        message.value = '';
+    }
+});
 
-screen.addEventListener('click', () => {
-    //document.getElementById('video-grid').style.display = 'block';
-    $(".chat-messages").css({
-        "position": "absolute",
-        "top": "0",
-        "right": "0",
-        "width": "25%",
-        "height": "100%",
-        "background": "#1b1b1b"
-    });
-    $(".text-input").css({
-        "bottom": "5%",
-        "left": "77%",
-        "width": "21%",
-        "height": "50px",
-        "padding": "19px",
-    })
-    $(".video-grid").css({
-        "display": "block",
-    })
-    screen.innerHTML = '<i class="fas fa-eye-slash"></i> Stop Sharing';
-})
+//DISPLAYS MESSAGE IN THE CHAT BOX
+socket.on("createMessage", (message, userName) => {
+    const div = document.createElement('div');
+    div.classList.add('messages-wrapper');
+    div.innerHTML = `
+    <div class="text-message">
+        <b>
+            <i class="far fa-user-circle"></i>
+            <span> ${userName === user ? "Me" : userName} </span> 
+        </b>
+        <span>${message}</span>
+    </div>`;
+
+    displayMessage.appendChild(div);
+});
 
