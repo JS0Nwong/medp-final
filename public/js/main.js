@@ -13,43 +13,71 @@ const peer = new Peer(undefined,{
 })
 
 //GETS DESKTOP SCREEN
-let screenShare;
 const startShare = document.getElementById('screen-share');
-navigator.mediaDevices.getDisplayMedia({
-    video:
-    {
-        mediaSource: 'screen',
-        width: { min: 1280, max: 1920 },
-        height: { min: 720, max: 1080 },
-        frameRate: { min: 1, max: 60 }
-    }
-}).then(stream => {
-    screenShare = stream;
-    addVideoStream(screenShare, videoGrid);
-});
+
+startShare.addEventListener('click', () => {
+    screenShare();
+})
+
+async function screenShare() {
+    let screenShare;
+    navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: "always" },
+        audio: false
+    }).then(stream => {
+        screenShare = stream;
+        addVideoStream(video, stream);
+    
+        peer.on("call", (call) => {
+            call.answer(stream);
+            const myVideo = document.createElement('video');
+            call.on('stream', userVideoStream => {
+                addVideoStream(myVideo, userVideoStream);
+            });
+        });
+    
+        socket.on("user-connected", (userId) => {
+            connectUser(userId, stream);
+        });
+    
+    }).catch(err => console.log(err));
+}
+
+function stopShare(e) {
+    screenShare.stop();
+}
 
 //GETS CAMERA VIDEO AND MICROPHONE AUDIO 
-let myVideoStream;
-navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-}).then(stream => {
-    myVideoStream = stream;
-    addVideoStream(video, stream);
 
-    peer.on("call", (call) => {
-        call.answer(stream);
-        const myVideo = document.createElement('video');
-        call.on('stream', userVideoStream => {
-            addVideoStream(myVideo, userVideoStream);
+const getCamera = document.getElementById('camera')
+
+getCamera.addEventListener('click', () => {
+    getVideo();
+})
+
+async function getVideo() {
+    let myVideoStream;
+    navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+    }).then(stream => {
+        myVideoStream = stream;
+        addVideoStream(video, stream);
+
+        peer.on("call", (call) => {
+            call.answer(stream);
+            const myVideo = document.createElement('video');
+            call.on('stream', userVideoStream => {
+                addVideoStream(myVideo, userVideoStream);
+            });
         });
-    });
 
-    socket.on("user-connected", (userId) => {
-        connectUser(userId, stream);
-    });
+        socket.on("user-connected", (userId) => {
+            connectUser(userId, stream);
+        });
 
-}).catch(err => console.log(err));
+    }).catch(err => console.log(err));
+}
 
 const connectUser = (userId, stream) => {
     const call = peer.call(userId, stream);
@@ -98,4 +126,9 @@ socket.on("createMessage", (message, userName) => {
 
     displayMessage.appendChild(div);
 });
+
+//STOP VIDEO AND AUDIO
+startShare.addEventListener('click', () => {
+    
+})
 
