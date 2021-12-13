@@ -6,11 +6,7 @@ myVideo.muted = true;
 
 const user = prompt("Enter your name");
 
-const peer = new Peer(undefined,{
-    path: "/peerjs",
-    host: "/",
-    port: "3000",
-})
+const peer = new Peer();
 
 //GETS DESKTOP SCREEN
     
