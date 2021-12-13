@@ -1,8 +1,8 @@
 const socket = io("/")  
 const videoGrid = document.getElementById('video-grid');
-const video = document.createElement('video');
+const myVideo = document.createElement('video');
 
-video.muted = true;
+myVideo.muted = true;
 
 const user = prompt("Enter your name");
 
@@ -13,76 +13,59 @@ const peer = new Peer(undefined,{
 })
 
 //GETS DESKTOP SCREEN
-const startShare = document.getElementById('screen-share');
-
-startShare.addEventListener('click', () => {
-    screenShare();
-})
-
-async function screenShare() {
-    let screenShare;
-    navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: "always" },
-        audio: false
-    }).then(stream => {
-        screenShare = stream;
-        addVideoStream(video, stream);
     
-        peer.on("call", (call) => {
-            call.answer(stream);
-            const myVideo = document.createElement('video');
-            call.on('stream', userVideoStream => {
-                addVideoStream(myVideo, userVideoStream);
-            });
+let screenShare;
+navigator.mediaDevices.getDisplayMedia({
+    video: false,
+    audio: false
+}).then(stream => {
+    screenShare = stream;
+    addVideoStream(myVideo, stream);
+
+    peer.on("call", (call) => {
+        call.answer(stream);
+        const video = document.createElement('video');
+        call.on('stream', userVideoStream => {
+            addVideoStream(video, userVideoStream);
         });
-    
-        socket.on("user-connected", (userId) => {
-            connectUser(userId, stream);
-        });
-    
-    }).catch(err => console.log(err));
-}
+    });
 
-function stopShare(e) {
-    screenShare.stop();
-}
+    socket.on("user-connected", (userId) => {
+        connectUser(userId, stream);
+    });        
+}).catch(err => console.log(err));
 
 //GETS CAMERA VIDEO AND MICROPHONE AUDIO 
 
-const getCamera = document.getElementById('camera')
+let myVideoStream;
+navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 44100,
+    }
+}).then(stream => {
+    myVideoStream = stream;
+    addVideoStream(myVideo, stream);
 
-getCamera.addEventListener('click', () => {
-    getVideo();
-})
-
-async function getVideo() {
-    let myVideoStream;
-    navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-    }).then(stream => {
-        myVideoStream = stream;
-        addVideoStream(video, stream);
-
-        peer.on("call", (call) => {
-            call.answer(stream);
-            const myVideo = document.createElement('video');
-            call.on('stream', userVideoStream => {
-                addVideoStream(myVideo, userVideoStream);
-            });
+    peer.on("call", (call) => {
+        call.answer(stream);
+        const video = document.createElement('video');
+        call.on('stream', (userVideoStream) => {
+            addVideoStream(video, userVideoStream);
         });
+    });
 
-        socket.on("user-connected", (userId) => {
-            connectUser(userId, stream);
-        });
-
-    }).catch(err => console.log(err));
-}
+    socket.on("user-connected", (userId) => {
+        connectUser(userId, stream);
+    });
+}).catch(err => console.log(err));
 
 const connectUser = (userId, stream) => {
     const call = peer.call(userId, stream);
     const video = document.createElement('video');
-    call.on('stream', userVideoStream => {
+    call.on('stream', (userVideoStream) => {
         addVideoStream(video, userVideoStream);
     });
 };
@@ -108,6 +91,7 @@ message.addEventListener('keydown', (e) => {
     if(e.key === "Enter" && message.value.length !== 0){
         socket.emit('message', message.value);
         message.value = '';
+        message.focus();
     }
 });
 
@@ -127,8 +111,48 @@ socket.on("createMessage", (message, userName) => {
     displayMessage.appendChild(div);
 });
 
-//STOP VIDEO AND AUDIO
+//INVITE BUTTON
+const invite = document.getElementById('invite');
+
+invite.addEventListener('click', () => {
+    prompt("Send this link to the people you want to chat with: ", window.location.href);
+});
+
+//STOP VIDEO AND MUTE BUTTON
+const stopVideo = document.getElementById('stop-video');
+const mute = document.getElementById('mute-mic');
+const startShare = document.getElementById('screen-share');
+
+stopVideo.addEventListener('click', () => {
+    const enabled = myVideoStream.getVideoTracks()[0].enabled;
+    if(enabled) {
+        myVideoStream.getVideoTracks()[0].enabled = false;
+        stopVideo.innerHTML = `<i class="fas fa-video"></i>`;
+    } else {
+        myVideoStream.getVideoTracks()[0].enabled = true;
+        stopVideo.innerHTML = `<i class="fas fa-video-slash"></i>`;
+    }
+});
+
+mute.addEventListener('click', () => {
+    const enabled = myVideoStream.getAudioTracks()[0].enabled;
+    if(enabled) {
+        myVideoStream.getAudioTracks()[0].enabled = false;
+        mute.innerHTML = `<i class="fas fa-microphone-alt"></i>`;
+    } else {
+        myVideoStream.getAudioTracks()[0].enabled = true;
+        mute.innerHTML = `<i class="fas fa-microphone-alt-slash"></i>`;
+    }
+});
+
 startShare.addEventListener('click', () => {
-    
-})
+    const enabled = screenShare.getVideoTracks()[0].enabled;
+    if(!enabled) {
+        screenShare.getVideoTracks()[0].enabled = true;
+        startShare.innerHTML = `<i class="fas fa-eye-slash"></i>`;
+    } else {
+        screenShare.getVideoTracks()[0].enabled = false;
+        startShare.innerHTML = `<i class="fas fa-desktop"></i>`;
+    }
+});
 
