@@ -14,26 +14,26 @@ const peer = new Peer(undefined,{
 
 //GETS DESKTOP SCREEN
     
-let screenShare;
-navigator.mediaDevices.getDisplayMedia({
-    video: false,
-    audio: false
-}).then(stream => {
-    screenShare = stream;
-    addVideoStream(myVideo, stream);
+// let screenShare;
+// navigator.mediaDevices.getDisplayMedia({
+//     video: false,
+//     audio: false
+// }).then(stream => {
+//     screenShare = stream;
+//     addVideoStream(myVideo, stream);
 
-    peer.on("call", (call) => {
-        call.answer(stream);
-        const video = document.createElement('video');
-        call.on('stream', userVideoStream => {
-            addVideoStream(video, userVideoStream);
-        });
-    });
+//     peer.on("call", (call) => {
+//         call.answer(stream);
+//         const video = document.createElement('video');
+//         call.on('stream', userVideoStream => {
+//             addVideoStream(video, userVideoStream);
+//         });
+//     });
 
-    socket.on("user-connected", (userId) => {
-        connectUser(userId, stream);
-    });        
-}).catch(err => console.log(err));
+//     socket.on("user-connected", (userId) => {
+//         connectUser(userId, stream);
+//     });        
+// })
 
 //GETS CAMERA VIDEO AND MICROPHONE AUDIO 
 
@@ -50,6 +50,9 @@ navigator.mediaDevices.getUserMedia({
     addVideoStream(myVideo, stream);
 
     peer.on("call", (call) => {
+
+        console.log(call)
+
         call.answer(stream);
         const video = document.createElement('video');
         call.on('stream', (userVideoStream) => {
@@ -60,7 +63,7 @@ navigator.mediaDevices.getUserMedia({
     socket.on("user-connected", (userId) => {
         connectUser(userId, stream);
     });
-}).catch(err => console.log(err));
+});
 
 const connectUser = (userId, stream) => {
     const call = peer.call(userId, stream);
@@ -70,7 +73,7 @@ const connectUser = (userId, stream) => {
     });
 };
 
-peer.on("open", id => {
+peer.on("open", (id) => {
     socket.emit("join-room", ROOM_ID, id, user);
 });
 
@@ -88,6 +91,7 @@ let displayMessage = document.getElementById('display-message');
 
 //LISTENS FOR SUBMIT EVENT 
 message.addEventListener('keydown', (e) => {
+
     if(e.key === "Enter" && message.value.length !== 0){
         socket.emit('message', message.value);
         message.value = '';
@@ -96,20 +100,26 @@ message.addEventListener('keydown', (e) => {
 });
 
 //DISPLAYS MESSAGE IN THE CHAT BOX
-socket.on("createMessage", (message, userName) => {
+socket.on("createMessage", (data) => {
+    displayMessages(data);
+    displayMessage.scrollTop = displayMessage.scrollHeight;
+});
+
+function displayMessages(data)
+{
     const div = document.createElement('div');
     div.classList.add('messages-wrapper');
     div.innerHTML = `
     <div class="text-message">
         <b>
             <i class="far fa-user-circle"></i>
-            <span> ${userName === user ? "Me" : userName} </span> 
+            <span> ${data.username === user ? `Me (${data.username})` : data.username} <span>${data.time}</span></span> 
         </b>
-        <span>${message}</span>
+        <span>${data.message}</span>
     </div>`;
 
     displayMessage.appendChild(div);
-});
+}
 
 //INVITE BUTTON
 const invite = document.getElementById('invite');

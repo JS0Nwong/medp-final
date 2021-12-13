@@ -133,6 +133,11 @@ video {
     display: flex;
     align-items: center;
     text-transform: capitalize;
+
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    overflow-wrap: break-word;
 }
 
 .text-message > b > i {
@@ -147,7 +152,12 @@ video {
     border-radius: 5px;
     overflow-wrap: break-word;
 }
-
+.text-message:hover
+{
+    cursor: pointer;
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+}
 
 #video-grid {
     display: flex;
