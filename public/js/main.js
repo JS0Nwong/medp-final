@@ -9,30 +9,31 @@ const user = prompt("Enter your name");
 const peer = new Peer();
 
 //GETS DESKTOP SCREEN
-    
-// let screenShare;
-// navigator.mediaDevices.getDisplayMedia({
-//     video: false,
-//     audio: false
-// }).then(stream => {
-//     screenShare = stream;
-//     addVideoStream(myVideo, stream);
+let screenShare;
+async function startScreenShare()
+{
+    navigator.mediaDevices.getDisplayMedia({
+        video: false,
+        audio: false
+    }).then(stream => {
+        screenShare = stream;
+        addVideoStream(myVideo, stream);
 
-//     peer.on("call", (call) => {
-//         call.answer(stream);
-//         const video = document.createElement('video');
-//         call.on('stream', userVideoStream => {
-//             addVideoStream(video, userVideoStream);
-//         });
-//     });
+        peer.on("call", (call) => {
+            call.answer(stream);
+            const video = document.createElement('video');
+            call.on('stream', userVideoStream => {
+                addVideoStream(video, userVideoStream);
+            });
+        });
 
-//     socket.on("user-connected", (userId) => {
-//         connectUser(userId, stream);
-//     });        
-// })
+        socket.on("user-connected", (userId) => {
+            connectUser(userId, stream);
+        });        
+    })
+}
 
 //GETS CAMERA VIDEO AND MICROPHONE AUDIO 
-
 let myVideoStream;
 navigator.mediaDevices.getUserMedia({
     video: true,
@@ -60,6 +61,7 @@ navigator.mediaDevices.getUserMedia({
         connectUser(userId, stream);
     });
 });
+
 
 const connectUser = (userId, stream) => {
     const call = peer.call(userId, stream);
@@ -152,12 +154,18 @@ mute.addEventListener('click', () => {
 });
 
 startShare.addEventListener('click', () => {
-    const enabled = screenShare.getVideoTracks()[0].enabled;
+    let enabled = false
     if(!enabled) {
-        screenShare.getVideoTracks()[0].enabled = true;
+        startScreenShare();
+        enabled = true;
         startShare.innerHTML = `<i class="fas fa-eye-slash"></i>`;
     } else {
-        screenShare.getVideoTracks()[0].enabled = false;
+        let tracks = screenShare.getVideoTracks();
+        tracks.forEach(track => {
+            track.stop();
+        });
+        screenShare.srcObject = null;
+        enabled = false;
         startShare.innerHTML = `<i class="fas fa-desktop"></i>`;
     }
 });

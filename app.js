@@ -47,6 +47,7 @@ io.on('connection', (socket) => {
   const socketId = socket.id;
   socketStatus[socketId] = {};
 
+  //LISTEN FOR USER JOINING
   socket.on('join-room', (roomId, userId, userName) => {
 
     const user = userJoin(socketId, userName, roomId);
@@ -64,15 +65,16 @@ io.on('connection', (socket) => {
     socket.on('message', (message) => {
       io.to(roomId).emit('createMessage', formatMessage(userName, message))
     });
-
-
   })
-  // //LISTEN FOR DISCONNECT
-  // socket.on('disconnect', () => {
-  //   const user = userLeave(socketId);
 
-  //   io.to(user.room).broadcast.emit('createMessage', formatMessage(botName, 'User has left the chat'))
-  // })
+  //LISTEN FOR DISCONNECT
+  socket.on('disconnect', () => {
+    const user = userLeave(socketId);
+
+    
+
+    delete socketStatus[socketId];
+  })
 })
 
 const PORT = process.env.PORT || 3000;
