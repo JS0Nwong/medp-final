@@ -3,11 +3,7 @@ const express = require('express')
 const app = express();
 const server = require('http').Server(app)
 const { v4: uuidV4 } = require('uuid')
-const io = require('socket.io')(server, {
-  cors: {
-    origin: '*'
-  }
-})
+const io = require('socket.io')(server)
 
 //HELPER FUNCTIONS
 const {userJoin, getUser, userLeave, getRoomUsers} = require('./public/js/user')
@@ -44,37 +40,28 @@ app.get('/:room', (req, res) => {
 //LISTEN FOR CONNECTION
 io.on('connection', (socket) => {
 
-  const socketId = socket.id;
-  socketStatus[socketId] = {};
-
   //LISTEN FOR USER JOINING
   socket.on('join-room', (roomId, userId, userName) => {
 
-    const user = userJoin(socketId, userName, roomId);
-
+    //WELCOME MESSAGE
     socket.emit('createMessage', formatMessage(botName, `Welcome ${userName} to the room!`));
 
     //JOIN ROOM
     socket.join(roomId)
 
-    //socket.emit('message', formatMessage(botName, 'Welcome to the chatroom!'));
-
     socket.to(roomId).broadcast.emit('user-connected', userId)
 
-    //LISTEN FOR MESSAGE
+    //LISTEN FOR MESSAGE AND FORMATS MESSAGE WITH TIMESTAMP AND USERNAME
     socket.on('message', (message) => {
       io.to(roomId).emit('createMessage', formatMessage(userName, message))
     });
+
+    //LISTEN FOR DISCONNECT
+    socket.on('disconnect', () => {
+      socket.to(roomId).broadcast.emit('user-disconnected', userId)
+    })
   })
 
-  //LISTEN FOR DISCONNECT
-  socket.on('disconnect', () => {
-    const user = userLeave(socketId);
-
-    
-
-    delete socketStatus[socketId];
-  })
 })
 
 const PORT = process.env.PORT || 3000;

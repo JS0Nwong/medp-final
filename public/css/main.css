@@ -42,10 +42,10 @@
 }
 
 video {
-    height: 300px;
+    height: 40%;
     border-radius: 1rem;
     margin: 0.5rem;
-    width: 400px;
+    width: 40%;
     object-fit: cover;
 }
 

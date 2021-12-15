@@ -4,9 +4,18 @@ const myVideo = document.createElement('video');
 
 myVideo.muted = true;
 
+const peers = {};
+
 const user = prompt("Enter your name");
 
-const peer = new Peer();
+//CREATE A NEW PEER CONNECTION
+const peer = new Peer()
+
+socket.on("user-connected", (userId) => {
+    console.log('User Connected: ', userId);
+
+    console.log(peers);
+})
 
 //GETS DESKTOP SCREEN
 let screenShare;
@@ -35,6 +44,7 @@ async function startScreenShare()
 
 //GETS CAMERA VIDEO AND MICROPHONE AUDIO 
 let myVideoStream;
+//GETS USER MEDIA AND SEND TO PEER
 navigator.mediaDevices.getUserMedia({
     video: true,
     audio: {
@@ -48,8 +58,6 @@ navigator.mediaDevices.getUserMedia({
 
     peer.on("call", (call) => {
 
-        console.log(call)
-
         call.answer(stream);
         const video = document.createElement('video');
         call.on('stream', (userVideoStream) => {
@@ -62,14 +70,26 @@ navigator.mediaDevices.getUserMedia({
     });
 });
 
-
-const connectUser = (userId, stream) => {
+function connectUser(userId, stream) {
     const call = peer.call(userId, stream);
     const video = document.createElement('video');
     call.on('stream', (userVideoStream) => {
         addVideoStream(video, userVideoStream);
     });
+
+    call.on('close', () => {
+        video.remove();
+    })
+
+    peers[userId] = call;
 };
+
+socket.on('user-disconnected', userId => {
+
+    console.log('User disconnected: ', userId);
+
+    if (peers[userId]) peers[userId].close();
+})
 
 peer.on("open", (id) => {
     socket.emit("join-room", ROOM_ID, id, user);
@@ -79,8 +99,8 @@ const addVideoStream = (video, stream) => {
     video.srcObject = stream;
     video.addEventListener('loadedmetadata', () => {
         video.play();
-        videoGrid.append(video);
     });
+    videoGrid.append(video);
 }
 
 //CHAT FUNCTIONALITY
@@ -133,12 +153,16 @@ const startShare = document.getElementById('screen-share');
 
 stopVideo.addEventListener('click', () => {
     const enabled = myVideoStream.getVideoTracks()[0].enabled;
-    if(enabled) {
+
+    if(enabled)
+    {
         myVideoStream.getVideoTracks()[0].enabled = false;
-        stopVideo.innerHTML = `<i class="fas fa-video"></i>`;
-    } else {
+        stopVideo.innerHTML = '<i class="fas fa-video"></i>';
+    }
+    else
+    {
         myVideoStream.getVideoTracks()[0].enabled = true;
-        stopVideo.innerHTML = `<i class="fas fa-video-slash"></i>`;
+        stopVideo.innerHTML = '<i class="fas fa-video-slash"></i>';
     }
 });
 
@@ -161,9 +185,7 @@ startShare.addEventListener('click', () => {
         startShare.innerHTML = `<i class="fas fa-eye-slash"></i>`;
     } else {
         let tracks = screenShare.getVideoTracks();
-        tracks.forEach(track => {
-            track.stop();
-        });
+        tracks.forEach(track => track.stop());
         screenShare.srcObject = null;
         enabled = false;
         startShare.innerHTML = `<i class="fas fa-desktop"></i>`;
