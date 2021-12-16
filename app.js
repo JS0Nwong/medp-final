@@ -49,12 +49,17 @@ io.on('connection', (socket) => {
     //JOIN ROOM
     socket.join(roomId)
 
+    //SENDS USER-CONNECTED RESPONSE TO FRONT END
     socket.to(roomId).broadcast.emit('user-connected', userId)
 
     //LISTEN FOR MESSAGE AND FORMATS MESSAGE WITH TIMESTAMP AND USERNAME
     socket.on('message', (message) => {
       io.to(roomId).emit('createMessage', formatMessage(userName, message))
     });
+
+    // socket.on('stream', (stream) => {
+    //   io.to(roomId).emit('createStream', stream)
+    // });
 
     //LISTEN FOR DISCONNECT
     socket.on('disconnect', () => {

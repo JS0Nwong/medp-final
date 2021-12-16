@@ -34,6 +34,7 @@ async function startScreenShare()
             call.on('stream', userVideoStream => {
                 addVideoStream(video, userVideoStream);
             });
+
         });
 
         socket.on("user-connected", (userId) => {
@@ -139,6 +140,23 @@ function displayMessages(data)
     displayMessage.appendChild(div);
 }
 
+// socket.on("createStream", (data) => {
+
+//     console.log(data);
+
+//     createStream(data);
+// })
+
+// function createStream(data)
+// {
+//     const video = document.createElement('video');
+//     video.srcObject = data;
+//     video.addEventListener('loadedmetadata', () => {
+//         video.play();
+//     });
+//     videoGrid.append(video);
+// }
+
 //INVITE BUTTON
 const invite = document.getElementById('invite');
 
@@ -153,7 +171,6 @@ const startShare = document.getElementById('screen-share');
 
 stopVideo.addEventListener('click', () => {
     const enabled = myVideoStream.getVideoTracks()[0].enabled;
-
     if(enabled)
     {
         myVideoStream.getVideoTracks()[0].enabled = false;
