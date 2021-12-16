@@ -16,7 +16,6 @@ const peerServer = ExpressPeerServer(server, {
 });
 
 const botName = 'AlfredBot';
-const socketStatus = {};
 
 var handlebars = require('express-handlebars').create({
   defaultLayout: 'main'

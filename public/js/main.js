@@ -8,7 +8,7 @@ const peers = {};
 
 const user = prompt("Enter your name");
 
-//CREATE A NEW PEER CONNECTION
+//CREATE A NEW PEER OBJECT
 const peer = new Peer()
 
 socket.on("user-connected", (userId) => {
@@ -21,10 +21,13 @@ socket.on("user-connected", (userId) => {
 let screenShare;
 async function startScreenShare()
 {
+    //GETS THE SCREEN
     navigator.mediaDevices.getDisplayMedia({
         video: false,
         audio: false
     }).then(stream => {
+
+        //GETS STREAM DATA
         screenShare = stream;
         addVideoStream(myVideo, stream);
 
@@ -37,7 +40,9 @@ async function startScreenShare()
 
         });
 
+        //CONNECTS USER TO THE ROOM
         socket.on("user-connected", (userId) => {
+            //SENDS THE CURRENT VIDEO STREAM TO THE NEW USER THAT CONNECTED
             connectUser(userId, stream);
         });        
     })
@@ -57,10 +62,13 @@ navigator.mediaDevices.getUserMedia({
     myVideoStream = stream;
     addVideoStream(myVideo, stream);
 
+    //LISTENS TO WHEN SOMEONE TRIES TO CALL/JOIN THE ROOM
     peer.on("call", (call) => {
 
+        //ANSWERS THE CALL AND SENDS THE USER VIDEO STREAM
         call.answer(stream);
         const video = document.createElement('video');
+        //LISTENS FOR THE NEW USER VIDEO STREAM AND APPENDS TO THE VIDEO GRID
         call.on('stream', (userVideoStream) => {
             addVideoStream(video, userVideoStream);
         });
@@ -72,23 +80,29 @@ navigator.mediaDevices.getUserMedia({
 });
 
 function connectUser(userId, stream) {
+    //CALL USER WITH THE ID PASSED IN AND SEND VIDEO STREAM
     const call = peer.call(userId, stream);
     const video = document.createElement('video');
+
+    //TAKES IN THE NEW USER VIDEO STREAM AND APPENDS TO THE VIDEO GRID
     call.on('stream', (userVideoStream) => {
         addVideoStream(video, userVideoStream);
     });
 
+    //REMOVES THE USER VIDEO STREAM FROM THE VIDEO GRID WHEN THE USER DISCONNECTS
     call.on('close', () => {
         video.remove();
     })
 
+    //MAKES EVERY USER ID DIRECTLY CONNECTED A CALL
     peers[userId] = call;
 };
 
+//LISTENS FOR USER DISCONNECT
 socket.on('user-disconnected', userId => {
 
     console.log('User disconnected: ', userId);
-
+    //CLOSES THE CONNECTION IF THE USER DISCONNECTS
     if (peers[userId]) peers[userId].close();
 })
 
@@ -96,6 +110,7 @@ peer.on("open", (id) => {
     socket.emit("join-room", ROOM_ID, id, user);
 });
 
+//ADDS THE VIDEO STREAM TO THE VIDEO GRID
 const addVideoStream = (video, stream) => {
     video.srcObject = stream;
     video.addEventListener('loadedmetadata', () => {
@@ -140,23 +155,6 @@ function displayMessages(data)
     displayMessage.appendChild(div);
 }
 
-// socket.on("createStream", (data) => {
-
-//     console.log(data);
-
-//     createStream(data);
-// })
-
-// function createStream(data)
-// {
-//     const video = document.createElement('video');
-//     video.srcObject = data;
-//     video.addEventListener('loadedmetadata', () => {
-//         video.play();
-//     });
-//     videoGrid.append(video);
-// }
-
 //INVITE BUTTON
 const invite = document.getElementById('invite');
 
@@ -164,7 +162,7 @@ invite.addEventListener('click', () => {
     prompt("Send this link to the people you want to chat with: ", window.location.href);
 });
 
-//STOP VIDEO AND MUTE BUTTON
+//STOP VIDEO, MUTE BUTTON, SHARE SCREEN BUTTON
 const stopVideo = document.getElementById('stop-video');
 const mute = document.getElementById('mute-mic');
 const startShare = document.getElementById('screen-share');
